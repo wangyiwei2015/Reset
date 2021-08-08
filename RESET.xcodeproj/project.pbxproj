@@ -18,6 +18,9 @@
 		1D662D5C26557C5500B8345F /* RESET.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1D662D5A26557C5500B8345F /* RESET.xcdatamodeld */; };
 		1D6809F3266C7BA80074DD5A /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1D6809F2266C7BA80074DD5A /* Launch Screen.storyboard */; };
 		1D77E39726738FFA00AB0304 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D77E39626738FFA00AB0304 /* HelpView.swift */; };
+		1DAF284826764FE600ABF7BA /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAF284726764FE600ABF7BA /* WelcomeView.swift */; };
+		1DB9429426774D6D00954A02 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB9429326774D6D00954A02 /* MailView.swift */; };
+		1DB942982677548A00954A02 /* NCHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DB942972677548A00954A02 /* NCHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +37,9 @@
 		1D662D5D26557C5500B8345F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1D6809F2266C7BA80074DD5A /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		1D77E39626738FFA00AB0304 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		1DAF284726764FE600ABF7BA /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		1DB9429326774D6D00954A02 /* MailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailView.swift; sourceTree = "<group>"; };
+		1DB942972677548A00954A02 /* NCHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,14 +73,9 @@
 		1D662D4E26557C5400B8345F /* RESET */ = {
 			isa = PBXGroup;
 			children = (
-				1D662D4F26557C5400B8345F /* RESETApp.swift */,
-				1D662D5126557C5400B8345F /* ContentView.swift */,
-				1D5589672656278A0023EA27 /* ListItemView.swift */,
-				1D2B8DE326593B0600327C4E /* PrefsView.swift */,
-				1D77E39626738FFA00AB0304 /* HelpView.swift */,
+				1DF8F7122679FBD00049205D /* Models */,
+				1DF8F7132679FBF20049205D /* Views */,
 				1D662D5326557C5500B8345F /* Assets.xcassets */,
-				1D662D5826557C5500B8345F /* Persistence.swift */,
-				1D55896C265651870023EA27 /* Config.swift */,
 				1D662D5D26557C5500B8345F /* Info.plist */,
 				1D662D5A26557C5500B8345F /* RESET.xcdatamodeld */,
 				1D662D5526557C5500B8345F /* Preview Content */,
@@ -89,6 +90,30 @@
 				1D662D5626557C5500B8345F /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1DF8F7122679FBD00049205D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1D662D4F26557C5400B8345F /* RESETApp.swift */,
+				1D662D5826557C5500B8345F /* Persistence.swift */,
+				1DB942972677548A00954A02 /* NCHelper.swift */,
+				1D55896C265651870023EA27 /* Config.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		1DF8F7132679FBF20049205D /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1D662D5126557C5400B8345F /* ContentView.swift */,
+				1D5589672656278A0023EA27 /* ListItemView.swift */,
+				1D2B8DE326593B0600327C4E /* PrefsView.swift */,
+				1D77E39626738FFA00AB0304 /* HelpView.swift */,
+				1DAF284726764FE600ABF7BA /* WelcomeView.swift */,
+				1DB9429326774D6D00954A02 /* MailView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -165,10 +190,13 @@
 				1D662D5926557C5500B8345F /* Persistence.swift in Sources */,
 				1D662D5C26557C5500B8345F /* RESET.xcdatamodeld in Sources */,
 				1D2B8DE426593B0700327C4E /* PrefsView.swift in Sources */,
+				1DAF284826764FE600ABF7BA /* WelcomeView.swift in Sources */,
 				1D662D5226557C5400B8345F /* ContentView.swift in Sources */,
 				1D77E39726738FFA00AB0304 /* HelpView.swift in Sources */,
 				1D662D5026557C5400B8345F /* RESETApp.swift in Sources */,
+				1DB942982677548A00954A02 /* NCHelper.swift in Sources */,
 				1D55896D265651880023EA27 /* Config.swift in Sources */,
+				1DB9429426774D6D00954A02 /* MailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -297,7 +325,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "\"RESET/Preview Content\"";
 				DEVELOPMENT_TEAM = JS2ME2LTBF;
 				ENABLE_PREVIEWS = YES;
@@ -307,7 +335,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wyw.reset;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -321,7 +349,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 29;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "\"RESET/Preview Content\"";
 				DEVELOPMENT_TEAM = JS2ME2LTBF;
 				ENABLE_PREVIEWS = YES;
@@ -331,7 +359,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.7;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.wyw.reset;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

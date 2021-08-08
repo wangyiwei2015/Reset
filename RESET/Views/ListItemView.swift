@@ -29,7 +29,7 @@ struct ListItemView: View {
                 VStack {
                     HStack {
                         Text(itemTitle)
-                            .font(.title2)
+                            .font(.title3)
                             .frame(height: 22, alignment: .leading)
                             .lineLimit(1)
                         Spacer()
@@ -46,15 +46,14 @@ struct ListItemView: View {
                     }
                 }
                 
-                Button(action: btnAction, label: {
-                    Image(systemName: "goforward")
-                        .resizable().scaledToFit()
-                        .foregroundColor(Color.secondary)
-                        .frame(width: 32, height: 32, alignment: .center)
-                        .padding(.horizontal)
-                })//.onLongPressGesture(perform: btnAction)
-            }
-            //.cornerRadius(3.0)
+//                Button(action: btnAction, label: {
+//                    Image(systemName: "goforward")
+//                        .resizable().scaledToFit()
+//                        .foregroundColor(Color.secondary)
+//                        .frame(width: 32, height: 32, alignment: .center)
+//                        .padding(.horizontal)
+//                })//.onLongPressGesture(perform: btnAction)
+            }.padding(.trailing)
         }
     }
 }

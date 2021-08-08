@@ -23,42 +23,36 @@ struct ContentView: View {
     @State private var showsHelp: Bool = false
     @State private var showsPrefs: Bool = false
     @State private var refreshMain = false
+    @State private var showsWelcome = !defs.bool(forKey: "_FIRST")
     
-    @State private var discardConfirm = false
     @State private var sortRule = 0
+    @State private var preferredColor = defs.integer(forKey: "_COLOR")
+    @State private var titleText: String? = defs.string(forKey: "_TITLE")
     
     @State private var newTitle: String = ""
     @State private var newIcon = 0
-    @State private var newNumYellow: String = ""
-    @State private var newUnitYellow = 0
-    @State private var newNumRed: String = ""
-    @State private var newUnitRed = 0
+    @State private var newNumYellow: String = "5"
+    @State private var newUnitYellow = 1
+    @State private var newNumRed: String = "7"
+    @State private var newUnitRed = 1
     @State private var newNotes: String = ""
+    @State private var newNotificationYellow = false
+    @State private var newNotificationRed = false
+    @State private var discardConfirm = false
 
     var body: some View {
-        ZStack { //alignment
+        ZStack { //for alignment
             
             //MARK: Contents
             VStack {
-                Text("Resetable Items")
-                    .font(.largeTitle)
-                    .foregroundColor(.blue)
-                    .padding(.top)
+                BigTitle()
                 if refreshMain {MainContentView()}
                 else {MainContentView()}
             }
             
-            //MARK: Empty item list
+            //MARK: Empty List Placeholder
             if resetItems.count == 0 {
-                VStack {
-                    Text("Nothing here")
-                        .font(.title)
-                        .foregroundColor(.gray)
-                    Text("Press (+) to get started")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                        .padding(.top)
-                }
+                EmptyTextView()
             }
             
             //MARK: Config View
@@ -74,14 +68,31 @@ struct ContentView: View {
                 NewItemView()
                     .onDisappear(perform: {discardConfirm = false})
             }
-        }//MARK: Navigation
+        }
+        //MARK: Navigation
         .fullScreenCover(isPresented: $showsPrefs) {
-            PrefsView()
+            PrefsView(updateOutside: {
+                preferredColor = defs.integer(forKey: "_COLOR")
+                titleText = defs.string(forKey: "_TITLE")
+            }).onAppear(perform: {showsConfig = false})
         }
         .sheet(isPresented: $showsHelp) {
             HelpView()
-        }
-        //or .popOver
+        } //or .popOver
+        .fullScreenCover(
+            isPresented: $showsWelcome,
+            onDismiss: {defs.set(true, forKey: "_FIRST")},
+            content: {WelcomeView()}
+        )
+        //MARK: View Did Appear
+        .onAppear(perform: {NCHelper.shared.updateAuth()})
+    }
+    
+    func BigTitle() -> some View {
+        Text(titleText ?? "Resetable Items")
+            .font(.largeTitle)
+            .foregroundColor(Color(userColors[preferredColor]))
+            .padding(.top)
     }
     
     func MainContentView() -> some View {
@@ -89,6 +100,15 @@ struct ContentView: View {
             ForEach(self.resetItems.sorted(by: sortRules[sortRule])) {item in
                 let resetAction: ()->Void = {
                     item.lastReset = Date()
+                    removeNotifications(for: item)
+                    if item.yNCID != nil {
+                        let yl = Double(Int(item.yellowLimit / 10)) * scalar[Int(item.yellowLimit) % 10]
+                        item.yNCID = NCHelper.shared.addNotification("Attention: \(item.title!)", body: "", after: yl)
+                    }
+                    if item.rNCID != nil {
+                        let rl = Double(Int(item.redLimit / 10)) * scalar[Int(item.redLimit) % 10]
+                        item.rNCID = NCHelper.shared.addNotification("Warning: \(item.title!)", body: "", after: rl)
+                    }
                     do {
                         try viewContext.save()
                     } catch {
@@ -108,6 +128,11 @@ struct ContentView: View {
                         red: item.redLimit),
                     btnAction: resetAction
                 ).contextMenu {
+                    if let inotes = item.notes {
+                        if inotes != "" {
+                            Text(inotes)
+                        }
+                    }
                     Button(action: resetAction, label: {
                         Text("Reset")
                         Image(systemName: "goforward")
@@ -119,6 +144,7 @@ struct ContentView: View {
 //                        Image(systemName: "doc.plaintext")
 //                    })
                     Button(action: {
+                        removeNotifications(for: item)
                         viewContext.delete(item)
                         do {
                             try viewContext.save()
@@ -234,7 +260,7 @@ struct ContentView: View {
                         .scaledToFit()
                         .foregroundColor(.white)
                         .frame(width: 60, height: 60, alignment: .center)
-                        .background(Color.blue)
+                        .background(Color(userColors[preferredColor]))
                         .cornerRadius(30)
                         .shadow(color: Color.init(.sRGBLinear, white: 0, opacity: 0.5), radius: 5, x: 0, y: 2)
                 }).padding(15)
@@ -251,7 +277,7 @@ struct ContentView: View {
                         .scaledToFit()
                         .foregroundColor(.white)
                         .frame(width: 60, height: 60, alignment: .center)
-                        .background(Color.blue)
+                        .background(Color(userColors[preferredColor]))
                         .cornerRadius(30)
                         .shadow(color: Color.init(.sRGBLinear, white: 0, opacity: 0.5), radius: 5, x: 0, y: 2)
                 })//overlay
@@ -263,7 +289,7 @@ struct ContentView: View {
     func NewItemView() -> some View {
         ZStack {
             //Blank View to prevent touch
-            Color(.sRGB, white: 1, opacity: 0.01)
+            Color(.sRGB, white: 0, opacity: 0.01)
                 .transition(.opacity)
             //Contents
             ZStack {
@@ -281,6 +307,7 @@ struct ContentView: View {
                         Button(action: {
                             if discardConfirm || newTitle == "" {
                                 withAnimation(.easeOut(duration: 0.15)) {
+                                    clearEntries()
                                     showsAdding = false
                                 }
                             }
@@ -303,9 +330,9 @@ struct ContentView: View {
                                     .cornerRadius(20)
                             }
                         }).padding(15)
-                        .transition(.scale)
+//                        .transition(.scale)
                         Spacer()
-                        Text("New item")
+                        Text("New item").font(.title2)
                         Spacer()
                         Button(action: {
                             if newTitle == "" {return}
@@ -313,13 +340,7 @@ struct ContentView: View {
                             withAnimation(.easeOut(duration: 0.15)) {
                                 showsAdding = false
                             }
-                            newTitle = ""
-                            newIcon = 0
-                            newNumYellow = ""
-                            newUnitYellow = 0
-                            newNumRed = ""
-                            newUnitRed = 0
-                            newNotes = ""
+                            clearEntries()
                         }, label: {
                             Image(systemName: "checkmark")
                                 .resizable()
@@ -327,16 +348,20 @@ struct ContentView: View {
                                 .scaledToFit()
                                 .foregroundColor(.white)
                                 .frame(width: 60, height: 40, alignment: .center)
-                                .background(Color.blue)
+                                .background(Color(userColors[preferredColor]))
                                 .cornerRadius(20)
                         }).padding(15)
                     }
                     
                     ScrollView(.vertical, showsIndicators: false) {
                         //MARK: Title Entry
-                        TextField("Add a title here", text: $newTitle)
-                            .frame(height: 50, alignment: .center)
-                            .font(.title2)
+                        VStack {
+                            TextField("Add a title here", text: $newTitle)
+                                .frame(height: 50, alignment: .center)
+                                .font(.title2)
+                                .padding(.horizontal, 10)
+                            //Divider().padding(.horizontal)
+                        }
                         //MARK: Icon Selection
                         VStack {
                             HStack {
@@ -352,49 +377,77 @@ struct ContentView: View {
                             //.pickerStyle(WheelPickerStyle())
                             .frame(height: 50, alignment: .center)
                             .padding(.bottom)
+                            Divider().padding(.horizontal)
                         }
                         //MARK: Yellow Date Entry
-                        HStack {
-                            Text("After")
-                                .font(.body)
-                                .frame(width: 50, alignment: .center)
-                                .lineLimit(1)
-                            TextField("", text: $newNumYellow)
-                                .frame(width: 50, height: 30, alignment: .center)
-                                .font(.title2)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .keyboardType(.numberPad)
-                            Picker("picker", selection: $newUnitYellow) {
-                                ForEach(0..<timeScales.count) {nameID in
-                                    Text(timeScales[nameID])
-                                }
-                            }.pickerStyle(SegmentedPickerStyle())
-                        }.padding(.vertical)
-                        Text("the item will be labeled Attention.")
-                            .foregroundColor(.gray)
-                            .padding([.bottom, .horizontal])
+                        VStack {
+                            HStack {
+                                Text("After")
+                                    .font(.body)
+                                    .frame(width: 50, alignment: .center)
+                                    .lineLimit(1)
+                                TextField("", text: $newNumYellow)
+                                    .frame(width: 50, height: 30, alignment: .center)
+                                    .font(.title2)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .keyboardType(.numberPad)
+                                Picker("picker", selection: $newUnitYellow) {
+                                    ForEach(0..<timeScales.count) {nameID in
+                                        Text(timeScales[nameID])
+                                    }
+                                }.pickerStyle(SegmentedPickerStyle())
+                            }.padding(.vertical)
+                            Text("the item will be labeled Attention.")
+                                .foregroundColor(.gray)
+                                .padding(.horizontal, 10)
+                            Toggle("Notify me", isOn: $newNotificationYellow)
+                                .foregroundColor(newNotificationYellow ? .green : .secondary)
+                                .padding(.horizontal, 50)
+                                .padding(.bottom)
+                            Divider().padding(.horizontal)
+                        }
                         //MARK: Red Date Entry
-                        HStack {
-                            Text("After")
-                                .font(.body)
-                                .frame(width: 50, alignment: .center)
-                                .lineLimit(1)
-                            Spacer()
-                            TextField("", text: $newNumRed)
-                                .frame(width: 50, height: 30, alignment: .center)
-                                .font(.title2)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .keyboardType(.numberPad)
-                            Picker("picker", selection: $newUnitRed) {
-                                ForEach(0..<timeScales.count) {nameID in
-                                    Text(timeScales[nameID])
-                                }
-                            }.pickerStyle(SegmentedPickerStyle())
-                        }.padding(.vertical)
-                        Text("the item will be labeled Warning.")
-                            .foregroundColor(.gray)
-                            .padding(.horizontal, 10)
-                        Spacer()
+                        VStack {
+                            HStack {
+                                Text("After")
+                                    .font(.body)
+                                    .frame(width: 50, alignment: .center)
+                                    .lineLimit(1)
+                                Spacer()
+                                TextField("", text: $newNumRed)
+                                    .frame(width: 50, height: 30, alignment: .center)
+                                    .font(.title2)
+                                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    .keyboardType(.numberPad)
+                                Picker("picker", selection: $newUnitRed) {
+                                    ForEach(0..<timeScales.count) {nameID in
+                                        Text(timeScales[nameID])
+                                    }
+                                }.pickerStyle(SegmentedPickerStyle())
+                            }.padding(.vertical)
+                            Text("the item will be labeled Warning.")
+                                .foregroundColor(.gray)
+                                .padding(.horizontal, 10)
+                            Toggle("Notify me", isOn: $newNotificationRed)
+                                .foregroundColor(newNotificationRed ? .green : .secondary)
+                                .padding(.horizontal, 50)
+                                .padding(.bottom)
+                            Divider().padding(.horizontal)
+                        }
+                        //MARK: Notes
+                        ZStack {
+                            VStack {
+                                TextEditor(text: $newNotes)
+                                    .frame(height: 200, alignment: .center)
+                                    .padding(.horizontal)
+                                Divider()
+                            }
+                            if newNotes == "" {
+                                Text("Add notes here")
+                                    .font(.headline)
+                                    .foregroundColor(.gray)
+                            }
+                        }
                     }.padding([.bottom, .horizontal], 10)
                 
                 }
@@ -416,6 +469,18 @@ struct ContentView: View {
         )
     }
     
+    func EmptyTextView() -> some View {
+        VStack {
+            Text("Nothing here")
+                .font(.title)
+                .foregroundColor(.gray)
+            Text("Press (+) to get started")
+                .font(.headline)
+                .foregroundColor(.gray)
+                .padding(.top)
+        }
+    }
+    
     private func saveResetItem() {
         withAnimation {
             let newItem = ResetItem(context: viewContext)
@@ -428,6 +493,15 @@ struct ContentView: View {
             let numRed = Int(newNumRed) ?? 2
             newItem.yellowLimit = Int32(numYellow * 10 + newUnitYellow)
             newItem.redLimit = Int32(numRed * 10 + newUnitRed)
+            //notifications
+            if newNotificationYellow {
+                let yl = Double(Int(newItem.yellowLimit / 10)) * scalar[Int(newItem.yellowLimit) % 10]
+                newItem.yNCID = NCHelper.shared.addNotification("Attention: \(newItem.title!)", body: "", after: yl)
+            }
+            if newNotificationRed {
+                let rl = Double(Int(newItem.redLimit / 10)) * scalar[Int(newItem.redLimit) % 10]
+                newItem.rNCID = NCHelper.shared.addNotification("Warning: \(newItem.title!)", body: "", after: rl)
+            }
             do {
                 try viewContext.save()
             } catch {
@@ -435,6 +509,24 @@ struct ContentView: View {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+    }
+    
+    private func removeNotifications(for item: ResetItem) {
+        let validNotifications = [item.yNCID, item.rNCID]
+            .filter({$0 != nil}).map({$0!})
+        NCHelper.shared.removeNotification(validNotifications)
+    }
+    
+    private func clearEntries() {
+        newTitle = ""
+        newIcon = 0
+        newNumYellow = "5"
+        newUnitYellow = 1
+        newNumRed = "7"
+        newUnitRed = 1
+        newNotes = ""
+        newNotificationYellow = false
+        newNotificationRed = false
     }
     
     let sortRules: [((ResetItem, ResetItem) -> Bool)] = [
@@ -474,22 +566,6 @@ private func colorIndex(reset: Date, yellow: Int32, red: Int32) -> Int {
     else if interval > yl {return 1}
     else {return 0}
 }
-
-private let scalar: [Double] = [
-    3600, 3600 * 24, 3600 * 24 * 7, 3600 * 24 * 30
-]
-
-private let timeScales: [String] = [
-    "Hour", "Day", "Weak", "Month"
-    //"时", "天", "周", "月"
-]
-
-//private let itemFormatter: DateFormatter = {
-//    let formatter = DateFormatter()
-//    formatter.dateStyle = .short
-//    formatter.timeStyle = .medium
-//    return formatter
-//}()
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
