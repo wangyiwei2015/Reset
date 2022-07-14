@@ -370,7 +370,7 @@ struct ContentView: View {
                                 Spacer()
                             }
                             Picker("picker", selection: $newIcon) {
-                                ForEach(0..<images.count) {nameID in
+                                ForEach(0..<images.count, id: \.self) {nameID in
                                     Image(systemName: images[nameID])
                                 }
                             }.pickerStyle(SegmentedPickerStyle())
@@ -392,7 +392,7 @@ struct ContentView: View {
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .keyboardType(.numberPad)
                                 Picker("picker", selection: $newUnitYellow) {
-                                    ForEach(0..<timeScales.count) {nameID in
+                                    ForEach(0..<timeScales.count, id: \.self) {nameID in
                                         Text(timeScales[nameID])
                                     }
                                 }.pickerStyle(SegmentedPickerStyle())
@@ -420,7 +420,7 @@ struct ContentView: View {
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
                                     .keyboardType(.numberPad)
                                 Picker("picker", selection: $newUnitRed) {
-                                    ForEach(0..<timeScales.count) {nameID in
+                                    ForEach(0..<timeScales.count, id: \.self) {nameID in
                                         Text(timeScales[nameID])
                                     }
                                 }.pickerStyle(SegmentedPickerStyle())

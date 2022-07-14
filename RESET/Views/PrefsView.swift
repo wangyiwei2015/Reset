@@ -52,7 +52,7 @@ struct PrefsView: View {
             Spacer()
         }
         HStack {
-            ForEach(0..<userColors.count) {id in
+            ForEach(0..<userColors.count, id: \.self) {id in
                 Button(action: {
                     preferredColor = id
                     defs.set(id, forKey: "_COLOR")
