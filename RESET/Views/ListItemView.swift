@@ -54,6 +54,7 @@ struct ListItemView: View {
 //                        .padding(.horizontal)
 //                })//.onLongPressGesture(perform: btnAction)
             }.padding(.trailing)
+            .background()
         }
     }
 }

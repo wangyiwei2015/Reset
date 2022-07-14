@@ -30,7 +30,7 @@ struct PrefsView: View {
                         ColorConfig()
                             .padding(.bottom)
                         CustomTitler()
-                        SampleConfig()
+                        //SampleConfig()
                         //DebugButtons()
                         VersInfo()
                         BtmButtons()
@@ -251,6 +251,7 @@ struct PrefsView: View {
                     }.padding([.horizontal, .top], 15)
                     //TextField
                     TextField("Resetable Items", text: $titleText)
+                        .submitLabel(.done)
                         .font(.title)
                         .frame(height: 60)
                         .padding(.horizontal, 10)

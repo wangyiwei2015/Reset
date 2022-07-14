@@ -61,7 +61,7 @@ struct ContentView: View {
             }
             
             //MARK: Buttons
-            BottomButtons()
+            BottomButtons().ignoresSafeArea(.keyboard)
             
             //MARK: New-Item View
             if showsAdding {
@@ -143,7 +143,7 @@ struct ContentView: View {
 //                        Text("Edit")
 //                        Image(systemName: "doc.plaintext")
 //                    })
-                    Button(action: {
+                    Button(role: .destructive) {
                         removeNotifications(for: item)
                         viewContext.delete(item)
                         do {
@@ -152,10 +152,10 @@ struct ContentView: View {
                             let nsError = error as NSError
                             fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
                         }
-                    }, label: {
+                    } label: {
                         Image(systemName: "trash")
                         Text("Delete")
-                    })
+                    }
                 }
                 //.padding(.vertical, 10)
             }
